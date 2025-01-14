@@ -169,3 +169,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+requirements.txt.old
+
+user_data_dir/
+NickTHorn.jpg
+telegram.session
