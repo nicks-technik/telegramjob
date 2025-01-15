@@ -38,10 +38,10 @@ def subscribe_to_channel(creds, channel_id):
     Subscribes to a YouTube channel using the YouTube Data API.
 
     Args:
-       channel_id (str): The ID of the channel to subscribe to.
+        channel_id (str): The ID of the channel to subscribe to.
 
     Returns:
-       bool: True if subscription was successful, False otherwise.
+        bool: True if subscription was successful, False otherwise.
     """
 
     try:
