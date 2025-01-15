@@ -1,15 +1,15 @@
 import sys
-from multiprocessing import process
 import os
+import logging
 from time import sleep
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
-import asyncio
+
+# from multiprocessing import process
 
 load_dotenv()
 
-YOUTUBE_EMAIL = os.getenv(key="ENV_YOUTUBE_EMAIL")
-YOUTUBE_PASSWORD = os.getenv(key="ENV_YOUTUBE_PASSWORD")
+headless: bool = os.getenv(key="ENV_HEADLESS") == "True"
 
 
 def like_and_subscribe(page):
@@ -25,7 +25,7 @@ def like_and_subscribe(page):
     subscribe_button = page.locator('yt-button-shape[aria-label="Subscribe to"]')
     subscribe_button.click()
 
-    print("Liked and subscribed to the video")
+    logging.info(f"Liked and subscribed to the video {page}")
 
 
 def youtube_login(page, email, password):
@@ -42,7 +42,7 @@ def youtube_login(page, email, password):
     page.locator("#passwordNext").click()
     # Wait until the login is completed
     page.wait_for_selector("#avatar-btn", state="visible")
-    print("Login Successful")
+    logging.info("Login Successful")
 
 
 def process_youtube_video(url, video_id):
@@ -52,7 +52,7 @@ def process_youtube_video(url, video_id):
         user_data_dir = "./tmp"  # choose a name for the directory
         browser = p.chromium.launch_persistent_context(
             user_data_dir,
-            headless=False,
+            headless=headless,
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
@@ -68,23 +68,45 @@ def process_youtube_video(url, video_id):
             # like_and_subscribe(page)
             page.screenshot(path="./png/" + video_id + ".png")
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
         finally:
             # sleep(10)
             browser.close()
 
 
-def main():
+def main() -> None:
+    """
+    Main function to process a YouTube video.
+
+    This function expects two command-line arguments: a video URL and a video ID.
+    If the number of arguments is incorrect, it prints a usage message and exits.
+
+    Usage:
+        python playwrightpart.py <video_url> <video_id>
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     if len(sys.argv) != 3:
-        print("Usage: python playwrightpart.py <video_url> <video_id>")
+        logging.error("Usage: python playwrightpart.py <video_url> <video_id>")
         sys.exit(1)
 
     video_url = sys.argv[1]
     video_id = sys.argv[2]
     process_youtube_video(video_url, video_id)
-    # process_youtube_video("3JZ_D3ELwOQ")
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())
+
+    YOUTUBE_EMAIL = os.getenv(key="ENV_YOUTUBE_EMAIL")
+    YOUTUBE_PASSWORD = os.getenv(key="ENV_YOUTUBE_PASSWORD")
+
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
+
     main()
