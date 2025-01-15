@@ -11,12 +11,21 @@ async def send_picture(client, destination_chat_id, video_id, task_text):
     )
 
 
+async def scrape_message(client, channel, limit=50):
+    async for message in client.iter_messages(channel, limit=limit):
+        if message.text:
+            print(message.text)
+            print("-" * 40)
+            print("=" * 40)
+            print("-" * 40)
+
+
 async def main():
     # with TelegramClient("name", api_id, api_hash) as client:
     me = await client.get_me()
     print(me.stringify())
 
-    await client.send_message(destination_chat_id, "Hellx, myself!")
+    await client.send_message(destination_chat_id, "Hell, myself!")
     # client.send_message("me", "Hello, myself!")
     # print(client.download_profile_photo("me"))
 
@@ -27,9 +36,9 @@ async def main():
     # async def handler(event):
     # await event.reply("Hey!")
 
-    # await client.send_file(destination_chat_id, "./NickTHorn.jpg", caption="Nick Thorn")
-    # await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ", "video_id")
-
+    await client.send_file(destination_chat_id, "./NickTHorn.jpg", caption="Nick Thorn")
+    await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ", "video_id")
+    await scrape_message(client, source_chat_id, limit=10)
     # client.run_until_disconnected()
 
 
@@ -39,8 +48,9 @@ if __name__ == "__main__":
     api_id: int = int(os.getenv(key="ENV_API_ID"))
     api_hash: str = os.getenv(key="ENV_API_HASH")
     destination_chat_id: int = int(os.getenv("ENV_DESTINATION_CHAT_ID"))
-    # destination_chat_id: str = os.getenv("ENV_SOURCE_CHAT_ID")
-
+    # print(f"Destination Chat ID: {destination_chat_id}")
+    source_chat_id: int = int(os.getenv("ENV_SOURCE_CHAT_ID"))
+    print(f"Source Chat ID: {source_chat_id}")
     client = TelegramClient("telegram", api_id, api_hash)
 
     with client:
