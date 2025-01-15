@@ -65,7 +65,7 @@ def process_youtube_video(video_id):
             page.goto(url)
             sleep(10)
             # like_and_subscribe(page)
-            page.screenshot(path=video_id + ".png")
+            page.screenshot(path="./png/" + video_id + ".png")
         except Exception as e:
             print(f"An error occurred: {e}")
         finally:
