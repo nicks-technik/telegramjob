@@ -45,10 +45,10 @@ def youtube_login(page, email, password):
     print("Login Successful")
 
 
-def process_youtube_video(video_id):
+def process_youtube_video(url, video_id):
     """Opens a browser, logs in, likes, and subscribes."""
     with sync_playwright() as p:
-        url = "https://www.youtube.com/watch?v=" + video_id
+        # url = "https://www.youtube.com/watch?v=" + video_id
         user_data_dir = "./tmp"  # choose a name for the directory
         browser = p.chromium.launch_persistent_context(
             user_data_dir,
@@ -64,7 +64,7 @@ def process_youtube_video(video_id):
         try:
             # youtube_login(page, YOUTUBE_EMAIL, YOUTUBE_PASSWORD)
             page.goto(url)
-            # sleep(10)
+            sleep(1)
             # like_and_subscribe(page)
             page.screenshot(path="./png/" + video_id + ".png")
         except Exception as e:
@@ -75,12 +75,13 @@ def process_youtube_video(video_id):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python playwrightpart.py <video_id>")
+    if len(sys.argv) != 3:
+        print("Usage: python playwrightpart.py <video_url> <video_id>")
         sys.exit(1)
 
-    video_id = sys.argv[1]
-    process_youtube_video(video_id)
+    video_url = sys.argv[1]
+    video_id = sys.argv[2]
+    process_youtube_video(video_url, video_id)
     # process_youtube_video("3JZ_D3ELwOQ")
 
 
