@@ -7,7 +7,7 @@ import asyncio
 
 async def send_picture(client, destination_chat_id, video_id, task_text):
     await client.send_file(
-        destination_chat_id, "./" + video_id + ".png", caption=task_text
+        destination_chat_id, "./png/" + video_id + ".png", caption=task_text
     )
 
 
