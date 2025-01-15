@@ -12,15 +12,22 @@ async def send_picture(client, destination_chat_id, video_id, task_text):
 
 
 async def scrape_message(client, channel, limit=50):
+    print(f"Scraping messages from {channel}...")
+    messages = []
     async for message in client.iter_messages(channel, limit=limit):
         if message.text:
             print(message.text)
             print("-" * 40)
             print("=" * 40)
             print("-" * 40)
+            messages.append(message.text)
+    return messages
 
 
 async def main():
+
+    dialogs = await client.get_dialogs()
+
     # with TelegramClient("name", api_id, api_hash) as client:
     me = await client.get_me()
     print(me.stringify())
@@ -36,9 +43,11 @@ async def main():
     # async def handler(event):
     # await event.reply("Hey!")
 
-    await client.send_file(destination_chat_id, "./NickTHorn.jpg", caption="Nick Thorn")
+    await client.send_file(
+        destination_chat_id, "./png/NickTHorn.jpg", caption="Nick Thorn"
+    )
     await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ", "video_id")
-    await scrape_message(client, source_chat_id, limit=10)
+    print(await scrape_message(client, source_chat_id, limit=120))
     # client.run_until_disconnected()
 
 
