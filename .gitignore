@@ -174,3 +174,9 @@ requirements.txt.old
 user_data_dir/
 NickTHorn.jpg
 telegram.session
+credentials.json
+token.pickle
+client_secret_ytsubscribe.json
+tmp/
+*.png
+*.jpg
