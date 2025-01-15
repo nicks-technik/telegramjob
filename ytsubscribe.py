@@ -5,8 +5,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import pickle
 
+SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]  # Correct Scope!
+API_SERVICE_NAME = "youtube"
+API_VERSION = "v3"
 
-def get_channel_id_from_video_id(video_id):
+
+def get_channel_id_from_video_id(creds, video_id):
     """
     Gets the channel ID from the video ID.
 
@@ -16,23 +20,6 @@ def get_channel_id_from_video_id(video_id):
     Returns:
         str: The ID of the channel, or None if an error occurs.
     """
-    SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
-    API_SERVICE_NAME = "youtube"
-    API_VERSION = "v3"
-
-    creds = None
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.pickle", "wb") as token:
-            pickle.dump(creds, token)
-
     try:
         youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
         request = youtube.videos().list(part="snippet", id=video_id)
@@ -46,7 +33,7 @@ def get_channel_id_from_video_id(video_id):
         return None
 
 
-def subscribe_to_channel(channel_id):
+def subscribe_to_channel(creds, channel_id):
     """
     Subscribes to a YouTube channel using the YouTube Data API.
 
@@ -56,22 +43,6 @@ def subscribe_to_channel(channel_id):
     Returns:
        bool: True if subscription was successful, False otherwise.
     """
-    SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
-    API_SERVICE_NAME = "youtube"
-    API_VERSION = "v3"
-
-    creds = None
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.pickle", "wb") as token:
-            pickle.dump(creds, token)
 
     try:
         youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
@@ -85,12 +56,15 @@ def subscribe_to_channel(channel_id):
         )
         request.execute()
         return True
+    except Exception as subcriptionDuplicate:
+        print(f"An error occurred: {subcriptionDuplicate}")
+        return True
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
 
 
-def like_video(video_id):
+def like_video(creds, video_id):
     """
     Likes a specified video using the YouTube Data API.
 
@@ -100,9 +74,18 @@ def like_video(video_id):
     Returns:
         bool: True if the like operation was successful, False otherwise.
     """
-    SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]  # Correct Scope!
-    API_SERVICE_NAME = "youtube"
-    API_VERSION = "v3"
+
+    try:
+        youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
+        request = youtube.videos().rate(id=video_id, rating="like")
+        request.execute()
+        return True
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+
+def check_login():
 
     creds = None
     if os.path.exists("token.pickle"):
@@ -116,29 +99,23 @@ def like_video(video_id):
             creds = flow.run_local_server(port=0)
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
-
-    try:
-        youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-        request = youtube.videos().rate(id=video_id, rating="like")
-        request.execute()
-        return True
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+    return creds
 
 
 if __name__ == "__main__":
-    video_to_like = "kCDUbJU99F8"  # Replace with the actual video ID
-    channel_id = get_channel_id_from_video_id(video_to_like)
+    video_id = "kCDUbJU99F8"  # Replace with the actual video ID
+    creds = check_login()
+
+    channel_id = get_channel_id_from_video_id(creds, video_id)
     if channel_id:
-        if like_video(video_to_like):
+        if like_video(video_id):
             if subscribe_to_channel(channel_id):
-                print(f"Successfully liked and subscribed to video: {video_to_like}")
+                print(f"Successfully liked and subscribed to video: {video_id}")
             else:
                 print(
-                    f"Successfully liked video, but failed to subscribe to channel: {video_to_like}"
+                    f"Successfully liked video, but failed to subscribe to channel: {video_id}"
                 )
         else:
-            print(f"Failed to like video: {video_to_like}")
+            print(f"Failed to like video: {video_id}")
     else:
-        print(f"Could not get the channel ID for video id: {video_to_like}")
+        print(f"Could not get the channel ID for video id: {video_id}")
