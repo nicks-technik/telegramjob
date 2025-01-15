@@ -1,3 +1,4 @@
+import sys
 from multiprocessing import process
 import os
 from time import sleep
@@ -63,7 +64,7 @@ def process_youtube_video(video_id):
         try:
             # youtube_login(page, YOUTUBE_EMAIL, YOUTUBE_PASSWORD)
             page.goto(url)
-            sleep(10)
+            # sleep(10)
             # like_and_subscribe(page)
             page.screenshot(path="./png/" + video_id + ".png")
         except Exception as e:
@@ -74,8 +75,13 @@ def process_youtube_video(video_id):
 
 
 def main():
-    process_youtube_video("3JZ_D3ELwOQ")
-    # process_youtube_video("https://www.youtube.com/watch?v=3JZ_D3ELwOQ")
+    if len(sys.argv) != 2:
+        print("Usage: python playwrightpart.py <video_id>")
+        sys.exit(1)
+
+    video_id = sys.argv[1]
+    process_youtube_video(video_id)
+    # process_youtube_video("3JZ_D3ELwOQ")
 
 
 if __name__ == "__main__":
