@@ -151,12 +151,10 @@ async def main() -> None:
 
             os.system(f"python3 playwrightpart.py {video_url} {video_id}")
 
-            if await telegrampart.send_picture(
+            await telegrampart.send_picture(
                 client, destination_chat_id, job["video_id"], job["task_number"]
-            ):
-                logging.warning(f"Screenshot sent for video ID: {video_id}")
-            else:
-                logging.error(f"Failed to send screenshot for video ID: {video_id}")
+            )
+            logging.warning(f"Screenshot sent for video ID: {video_id}")
             break  # for loop
 
 
