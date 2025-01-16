@@ -1,13 +1,16 @@
+from email.policy import default
 import os
 import logging
 from time import sleep
 import re
 from dotenv import load_dotenv
 import telegrampart
+import re
+import random
 
 # import playwrightpart
 from telethon.sync import TelegramClient
-import ytsubscribe
+import ytsubscribe  # type: ignore
 
 # import asyncio
 
@@ -18,12 +21,10 @@ logging.basicConfig(
 )
 
 load_dotenv()
-api_id: int = int(os.getenv(key="ENV_API_ID"))
-api_hash: str = os.getenv(key="ENV_API_HASH")
-destination_chat_id: int = int(os.getenv("ENV_DESTINATION_CHAT_ID"))
-source_chat_id: int = int(os.getenv("ENV_SOURCE_CHAT_ID"))
-import re
-import random
+api_id: int = int(os.getenv(key="ENV_API_ID", default="0"))
+api_hash: str = os.getenv(key="ENV_API_HASH", default="")
+destination_chat_id: int = int(os.getenv("ENV_DESTINATION_CHAT_ID"))  # type: ignore
+source_chat_id: int = int(os.getenv("ENV_SOURCE_CHAT_ID"))  # type: ignore
 
 
 def random_sleep() -> None:
@@ -37,7 +38,7 @@ def random_sleep() -> None:
         None
     """
     sleep_time = random.randint(60, 180)
-    logging.info(f"Sleeping for {sleep_time} seconds...")
+    logging.warning(f"Sleeping for {sleep_time} seconds...")
     sleep(sleep_time)
 
 
@@ -126,7 +127,7 @@ async def main() -> None:
     messages = await telegrampart.scrape_message(client, source_chat_id, limit=200)
 
     logging.debug(f"Message List: {messages}")
-    sleep(10)
+    # sleep(10)
     logging.info("Before Extracting info from messages...")
     jobs = extract_info_from_messages(messages)
     logging.debug(f"jobs: {jobs}")
@@ -143,16 +144,19 @@ async def main() -> None:
             continue
 
         if ytsubscribe.like_video(creds, video_id):
-            logging.info(f"Successfully liked video: {video_id}")
+            logging.warning(f"Successfully liked video: {video_id}")
             # channel_id = ytsubscribe.get_channel_id_from_video_id(creds, video_id)
             # if ytsubscribe.subscribe_to_channel(creds, channel_id):
             #     logging.info(f"Successfully liked and subscribed to video: {video_id}")
 
             os.system(f"python3 playwrightpart.py {video_url} {video_id}")
 
-            await telegrampart.send_picture(
+            if await telegrampart.send_picture(
                 client, destination_chat_id, job["video_id"], job["task_number"]
-            )
+            ):
+                logging.warning(f"Screenshot sent for video ID: {video_id}")
+            else:
+                logging.error(f"Failed to send screenshot for video ID: {video_id}")
             break  # for loop
 
 

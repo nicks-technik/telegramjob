@@ -10,6 +10,7 @@ from playwright.sync_api import sync_playwright
 load_dotenv()
 
 headless: bool = os.getenv(key="ENV_HEADLESS") == "True"
+logging.info(f"headless: {headless}")
 
 
 def like_and_subscribe(page):
@@ -35,7 +36,7 @@ def youtube_login(page, email, password):
     # Type Email
     page.locator('input[type="email"]').type(email)
     page.locator("#identifierNext").click()
-    sleep(4)
+    sleep(5)
     # Type Password
     page.wait_for_selector('input[type="password"]', state="visible")
     page.locator('input[type="password"]').type(password)
