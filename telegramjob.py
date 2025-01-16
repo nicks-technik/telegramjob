@@ -154,7 +154,9 @@ async def main() -> None:
             await telegrampart.send_picture(
                 client, destination_chat_id, job["video_id"], job["task_number"]
             )
-            logging.warning(f"Screenshot sent for video ID: {video_id}")
+            logging.warning(
+                f"Screenshot sent for video ID: {video_id} send to {destination_chat_id}"
+            )
             break  # for loop
 
 
