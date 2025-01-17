@@ -37,7 +37,7 @@ def random_sleep() -> None:
     Returns:
         None
     """
-    sleep_time = random.randint(60, 180)
+    sleep_time = random.randint(60, 300)
     logging.warning(f"Sleeping for {sleep_time} seconds...")
     sleep(sleep_time)
 
