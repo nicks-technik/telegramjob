@@ -1,5 +1,4 @@
 MAILFROM="my_hostname"
 MAILTO="sendto@receiver.com"
 # m h  dom mon dow   command
-*/30 * * * * /home/user/dev/telegramjob/telegramjob.sh
-
+*/30 9-19 * * * /home/user/dev/telegramjob/telegramjob.sh
