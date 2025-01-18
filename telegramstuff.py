@@ -1,10 +1,10 @@
 import os
-import logging
+from logger_config import logger
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
 
 
-async def send_picture(client, destination_chat_id, video_id, task_text):
+async def send_picture(client, destination_chat_id, job) -> bool:
     """
     Asynchronously sends a picture to a specified chat.
 
@@ -16,10 +16,30 @@ async def send_picture(client, destination_chat_id, video_id, task_text):
 
     Returns:
         None
+
     """
-    await client.send_file(
-        destination_chat_id, "./png/" + video_id + ".png", caption=task_text
-    )
+    task_text = job["task_number"]
+    video_id = job["video_id"]
+
+    for i in range(2):
+        try:
+            await client.send_file(
+                destination_chat_id, "./png/" + video_id + ".png", caption=task_text
+            )
+
+            logger.warning(
+                f"Screenshot sent for video ID: {video_id} send to {destination_chat_id}"
+            )
+            return_value = True
+            break
+        except Exception as e:
+            logger.error(f"Error sending screenshot:{video_id} task {task_text} {e}")
+            return_value = False
+    return return_value
+
+
+def send_screenshot(client, destination_chat_id, job) -> bool:
+    """Sends a screenshot of a YouTube video to a Telegram chat."""
 
 
 async def scrape_message(client, channel, limit=50):
@@ -37,12 +57,12 @@ async def scrape_message(client, channel, limit=50):
     Returns:
         list: A list of message texts scraped from the specified channel.
     """
-    logging.info(f"Scraping messages from {channel}...")
+    logger.info(f"Scraping messages from {channel}...")
     messages = []
     async for message in client.iter_messages(channel, limit=limit):
         if message.text:
-            logging.debug(message.text)
-            logging.debug("-" * 40)
+            logger.debug(message.text)
+            logger.debug("-" * 40)
             messages.append(message.text)
     return messages
 
@@ -66,7 +86,7 @@ async def main() -> None:
     dialogs = await client.get_dialogs()
 
     me = await client.get_me()
-    logging.debug(me.stringify())
+    logger.debug(me.stringify())
 
     await client.send_message(destination_chat_id, "Hell, myself!")
 
@@ -74,12 +94,12 @@ async def main() -> None:
         destination_chat_id, "./png/NickTHorn.jpg", caption="Nick Thorn"
     )
     await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ", "video_id")
-    logging.info(await scrape_message(client, source_chat_id, limit=100))
+    logger.info(await scrape_message(client, source_chat_id, limit=100))
     # client.run_until_disconnected()
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
+    logger.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.INFO,
     )
@@ -89,9 +109,9 @@ if __name__ == "__main__":
     api_id: int = int(os.getenv(key="ENV_API_ID"))
     api_hash: str = os.getenv(key="ENV_API_HASH")
     destination_chat_id: int = int(os.getenv("ENV_DESTINATION_CHAT_ID"))
-    logging.info(f"Destination Chat ID: {destination_chat_id}")
+    logger.info(f"Destination Chat ID: {destination_chat_id}")
     source_chat_id: int = int(os.getenv("ENV_SOURCE_CHAT_ID"))
-    logging.info(f"Source Chat ID: {source_chat_id}")
+    logger.info(f"Source Chat ID: {source_chat_id}")
     client = TelegramClient("telegram", api_id, api_hash)
 
     with client:
