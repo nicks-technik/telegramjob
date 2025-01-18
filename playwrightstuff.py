@@ -1,32 +1,32 @@
 import sys
 import os
-import logging
 from time import sleep
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
+from logger_config import logger
 
 # from multiprocessing import process
 
 load_dotenv()
 
 headless: bool = os.getenv(key="ENV_HEADLESS") == "True"
-logging.info(f"headless: {headless}")
+logger.info(f"headless: {headless}")
 
 
-def like_and_subscribe(page):
-    """Clicks like and subscribe buttons on a YouTube video page."""
+# def like_and_subscribe(page):
+#     """Clicks like and subscribe buttons on a YouTube video page."""
 
-    # Click the like button
-    like_button = page.locator(
-        'yt-button-shape[aria-label="like this video along with 1 other person"]'
-    )
-    like_button.click()
+#     # Click the like button
+#     like_button = page.locator(
+#         'yt-button-shape[aria-label="like this video along with 1 other person"]'
+#     )
+#     like_button.click()
 
-    # Click the subscribe button
-    subscribe_button = page.locator('yt-button-shape[aria-label="Subscribe to"]')
-    subscribe_button.click()
+#     # Click the subscribe button
+#     subscribe_button = page.locator('yt-button-shape[aria-label="Subscribe to"]')
+#     subscribe_button.click()
 
-    logging.info(f"Liked and subscribed to the video {page}")
+#     logger.info(f"Liked and subscribed to the video {page}")
 
 
 def youtube_login(page, email, password):
@@ -43,7 +43,7 @@ def youtube_login(page, email, password):
     page.locator("#passwordNext").click()
     # Wait until the login is completed
     page.wait_for_selector("#avatar-btn", state="visible")
-    logging.info("Login Successful")
+    logger.info("Login Successful")
 
 
 def process_youtube_video(url, video_id):
@@ -68,8 +68,9 @@ def process_youtube_video(url, video_id):
             sleep(1)
             # like_and_subscribe(page)
             page.screenshot(path="./png/" + video_id + ".png")
+            logger.warning(f"Screenshot saved for video ID: {video_id}")
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
         finally:
             # sleep(10)
             browser.close()
@@ -92,7 +93,7 @@ def main() -> None:
         None
     """
     if len(sys.argv) != 3:
-        logging.error("Usage: python playwrightpart.py <video_url> <video_id>")
+        logger.error("Usage: python playwrightpart.py <video_url> <video_id>")
         sys.exit(1)
 
     video_url = sys.argv[1]
@@ -105,9 +106,9 @@ if __name__ == "__main__":
     YOUTUBE_EMAIL = os.getenv(key="ENV_YOUTUBE_EMAIL")
     YOUTUBE_PASSWORD = os.getenv(key="ENV_YOUTUBE_PASSWORD")
 
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        level=logging.INFO,
-    )
+    # logging.basicConfig(
+    #     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    #     level=logging.INFO,
+    # )
 
     main()

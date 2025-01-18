@@ -107,7 +107,7 @@ async def main() -> None:
 
     for job in jobs:
 
-        logger.debug(f"Job: {job}")
+        logger.warning(f"Job: {job}")
         video_url = job["video_url"]
         video_id = job["video_id"]
         task_text = job["task_number"]
@@ -128,15 +128,20 @@ async def main() -> None:
                 logger.error(f"Failed to like and subscribe to video: {video_id}")
                 sys.exit(1)
 
-        os.system(f"python3 playwrightpart.py {video_url} {video_id}")
+        os.system(f"python3 playwrightstuff.py {video_url} {video_id}")
 
-        await telegramstuff.send_picture(client, destination_chat_id, job)
+        if await telegramstuff.send_picture(client, destination_chat_id, job):
+            logger.warning(f"DONE: {job}")
+        else:
+            logger.error(f"ERROR ERROR ERROR Failed to send picture for job: {job}")
         break
 
 
 if __name__ == "__main__":
 
-    logger.warning("1030 1100 1300 1330 1530 1600 1800 1830 dealer task")
+    logger.warning(
+        f"{destination_chat_id} 1030 1100 1300 1330 1530 1600 1800 1830 dealer task"
+    )
     random_sleep(wait_min, wait_max)
     client = TelegramClient("telegram", api_id, api_hash)
 
