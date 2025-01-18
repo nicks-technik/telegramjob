@@ -7,7 +7,7 @@ def setup_logger(log_file="app.log", console_level=logging.WARNING):
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s",
+        "%(asctime)s-%(levelname)s-%(filename)s-%(funcName)s-%(lineno)d- %(message)s",
         datefmt="%d.%m.%y %I:%M:%S",
     )
 
