@@ -18,6 +18,7 @@ destination_chat_id: int = int(os.getenv("ENV_DESTINATION_CHAT_ID"))  # type: ig
 source_chat_id: int = int(os.getenv("ENV_SOURCE_CHAT_ID"))  # type: ignore
 wait_min: int = int(os.getenv("ENV_WAIT_MIN", default="60"))  # type: ignore
 wait_max: int = int(os.getenv("ENV_WAIT_MAX", default="300"))  # type: ignore
+telegram_limit: int = int(os.getenv("ENV_TELEGRAM_LIMIT", default="100"))  # type: ignore
 
 
 def random_sleep(min: int, max: int) -> None:
@@ -48,7 +49,7 @@ def extract_info_from_messages(messages):
     extracted_data = []
     for message in messages:
 
-        logger.debug(f"\n\n\n\n\nActual Message: {message}")
+        logger.debug(f"===Actual Message: {message}")
 
         searchstring = "veröffentlicht"
         if searchstring in message:
@@ -89,13 +90,20 @@ async def main() -> None:
 
     dialogs = await client.get_dialogs()
 
-    messages = await telegramstuff.scrape_message(client, source_chat_id, limit=200)
+    messages = await telegramstuff.scrape_message(
+        client, source_chat_id, limit=telegram_limit
+    )
     logger.debug(f"Message List: {messages}")
 
     jobs = extract_info_from_messages(messages)
-    logger.debug(f"Found jobs: {jobs}")
 
-    creds = youtubestuff.check_login()
+    logger.info(f"Found jobs: {jobs}")
+
+    if not jobs:
+        logger.warning("No jobs found.")
+        return
+    else:
+        creds = youtubestuff.check_login()
 
     for job in jobs:
 
@@ -127,11 +135,9 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    # logger = setup_logger(console_level=logging.INFO)
 
     logger.warning("1030 1100 1300 1330 1530 1600 1800 1830 dealer task")
     random_sleep(wait_min, wait_max)
-    # asyncio.run(main())
     client = TelegramClient("telegram", api_id, api_hash)
 
     with client:
