@@ -1,4 +1,5 @@
 import os
+from logger_config import logger
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -29,7 +30,7 @@ def get_channel_id_from_video_id(creds, video_id):
         else:
             return None
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         return None
 
 
@@ -57,10 +58,10 @@ def subscribe_to_channel(creds, channel_id):
         request.execute()
         return True
     except Exception as subcriptionDuplicate:
-        print(f"An error occurred: {subcriptionDuplicate}")
+        logger.error(f"An error occurred: {subcriptionDuplicate}")
         return True
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         return False
 
 
@@ -75,14 +76,44 @@ def like_video(creds, video_id):
         bool: True if the like operation was successful, False otherwise.
     """
 
-    try:
-        youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-        request = youtube.videos().rate(id=video_id, rating="like")
-        request.execute()
-        return True
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+    for i in range(2):
+
+        try:
+            youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
+            request = youtube.videos().rate(id=video_id, rating="like")
+            request.execute()
+            return_value = True
+            break
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
+            return_value = False
+
+    return return_value
+
+
+def extract_video_id(url) -> str:
+    """Extracts the YouTube video ID from a URL.
+
+    Args:
+        url (str): The YouTube URL.
+
+    Returns:
+        str: The extracted video ID, or None if not found.
+    """
+    if "youtu.be/" in url:
+        try:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+            return video_id
+        except IndexError:
+            return None
+    elif "youtube.com/watch?v=" in url:
+        try:
+            video_id = url.split("youtube.com/watch?v=")[1].split("&")[0].split("?")[0]
+            return video_id
+        except IndexError:
+            return None
+    else:
+        return None
 
 
 def check_login():
@@ -110,12 +141,12 @@ if __name__ == "__main__":
     if channel_id:
         if like_video(video_id):
             if subscribe_to_channel(channel_id):
-                print(f"Successfully liked and subscribed to video: {video_id}")
+                logger.info(f"Successfully liked and subscribed to video: {video_id}")
             else:
-                print(
+                logger.info(
                     f"Successfully liked video, but failed to subscribe to channel: {video_id}"
                 )
         else:
-            print(f"Failed to like video: {video_id}")
+            logger.error(f"Failed to like video: {video_id}")
     else:
-        print(f"Could not get the channel ID for video id: {video_id}")
+        logger.error(f"Could not get the channel ID for video id: {video_id}")
