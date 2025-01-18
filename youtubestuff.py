@@ -82,6 +82,7 @@ def like_video(creds, video_id):
             youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
             request = youtube.videos().rate(id=video_id, rating="like")
             request.execute()
+            logger.warning(f"Video {video_id} liked.")
             return_value = True
             break
         except Exception as e:
