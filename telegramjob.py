@@ -48,10 +48,10 @@ def extract_info_from_messages(messages):
     logger.debug("In Extracting info from messages...")
     extracted_data = []
     for message in messages:
-
         logger.debug(f"===Actual Message: {message}")
 
-        searchstring = "veröffentlicht"
+        # searchstring = "veröffentlicht"
+        searchstring = "hat bereits begonnen"
         if searchstring in message:
             logger.debug(f"The text {searchstring} is in the  {message}")
         else:
@@ -59,16 +59,21 @@ def extract_info_from_messages(messages):
             continue
 
         searchstring = "https://youtu.be/"
+        message = message.replace("https**://", "https://")
+        searchstring = "https://youtu.be/"
         if searchstring in message:
-            logger.debug(f"The text {searchstring} is in the  {message}")
+            logger.info(f"The text {searchstring} is in the  {message}")
         else:
-            logger.debug(f"The text {searchstring} is not in the {message}")
+            logger.info(f"The text {searchstring} is not in the {message}")
             continue
 
-        task_match = re.search(r"(Mission Nr\.|Aufgaben Nr\.)\s*(\d+)", message)
-        logger.debug(f"Task Match: {task_match}")
+        logger.info(f"======Before Regex:")
+        task_match = re.search(r"(Mission)\s*(\d+)", message)
+        # task_match = re.search(r"(Mission Nr\.|Aufgaben Nr\.)\s*(\d+)", message)
+        logger.info(f"Task Match: {task_match}")
         link_match = re.search(r"(https?://[^\s]+)", message)
-        logger.debug(f"Link Match: {link_match}")
+        # link_match = re.search(r"(https\*\*?://[^\s]+)", message)
+        logger.info(f"Link Match: {link_match}")
         if task_match and link_match:
             task_number = task_match.group(2)
             video_url = link_match.group(1)
@@ -87,7 +92,6 @@ def extract_info_from_messages(messages):
 
 
 async def main() -> None:
-
     dialogs = await client.get_dialogs()
 
     messages = await telegramstuff.scrape_message(
@@ -106,7 +110,6 @@ async def main() -> None:
         creds = youtubestuff.check_login()
 
     for job in jobs:
-
         logger.warning(f"Job: {job}")
         video_url = job["video_url"]
         video_id = job["video_id"]
@@ -138,9 +141,8 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-
     logger.warning(
-        f"{destination_chat_id} 1030 1100 1300 1330 1530 1600 1800 1830 dealer task"
+        f"{destination_chat_id} =====\nYT 0900 0930 1000 1100 1230 1400 1500 1630 1700 1730 1900 1930\nPrepaid 1030 1300 1530 1800\nBitget 1200 C24 1430"
     )
     random_sleep(wait_min, wait_max)
     client = TelegramClient("telegram", api_id, api_hash)

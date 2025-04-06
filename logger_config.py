@@ -1,3 +1,7 @@
+"""
+This module configures the logging system for the application.
+"""
+
 import logging
 import sys
 
@@ -31,4 +35,4 @@ def setup_logger(log_file="app.log", console_level=logging.WARNING):
 
 
 # Initialize the logger (executed once when this module is imported)
-logger = setup_logger()
+logger = setup_logger(console_level=logging.INFO)

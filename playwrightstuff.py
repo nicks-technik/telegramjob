@@ -66,6 +66,7 @@ def process_youtube_video(url, video_id):
             # youtube_login(page, YOUTUBE_EMAIL, YOUTUBE_PASSWORD)
             page.goto(url)
             sleep(1)
+            sleep(10)
             # like_and_subscribe(page)
             page.screenshot(path="./png/" + video_id + ".png")
             logger.warning(f"Screenshot saved for video ID: {video_id}")
@@ -102,7 +103,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-
     YOUTUBE_EMAIL = os.getenv(key="ENV_YOUTUBE_EMAIL")
     YOUTUBE_PASSWORD = os.getenv(key="ENV_YOUTUBE_PASSWORD")
 
