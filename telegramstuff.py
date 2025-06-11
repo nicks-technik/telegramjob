@@ -20,7 +20,7 @@ async def send_picture(client, destination_chat_id, job) -> bool:
     """
     task_text = job["task_number"]
     video_id = job["video_id"]
-
+    return_value = False
     for i in range(2):
         try:
             await client.send_file(
@@ -93,7 +93,7 @@ async def main() -> None:
     await client.send_file(
         destination_chat_id, "./png/NickTHorn.jpg", caption="Nick Thorn"
     )
-    await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ", "video_id")
+    await send_picture(client, destination_chat_id, "3JZ_D3ELwOQ")
     logger.info(await scrape_message(client, source_chat_id, limit=100))
     # client.run_until_disconnected()
 

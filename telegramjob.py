@@ -1,13 +1,15 @@
-import sys
 import os
-import re
 import random
+import re
+import sys
 from time import sleep
+
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
+
+import telegramstuff  # Read the messages from the Telegram channel
+import youtubestuff  # Get the channel ID from the YouTube link
 from logger_config import logger
-import telegramstuff
-import youtubestuff
 
 # import playwrightpart
 load_dotenv(override=True)
@@ -50,26 +52,32 @@ def extract_info_from_messages(messages):
     for message in messages:
         logger.debug(f"===Actual Message: {message}")
 
-        # searchstring = "veröffentlicht"
-        searchstring = "hat bereits begonnen"
+        searchstring = "veröffentlicht"
+        # searchstring = "Mission"
+        # searchstring = "hat bereits begonnen"
         if searchstring in message:
             logger.debug(f"The text {searchstring} is in the  {message}")
         else:
             logger.debug(f"The text {searchstring} is not in the {message}")
             continue
-
-        searchstring = "https://youtu.be/"
+        logger.info(msg=f"==Actual Message: {message}")
+        message = message.replace("**", "")
         message = message.replace("https**://", "https://")
-        searchstring = "https://youtu.be/"
-        if searchstring in message:
-            logger.info(f"The text {searchstring} is in the  {message}")
+        searchstring1 = "https://www.youtube.com/"
+        searchstring2 = "https://youtu.be/"
+        if searchstring1 in message or searchstring2 in message:
+            logger.info(
+                f"The text {searchstring1} or {searchstring2} is in the message"
+            )
         else:
-            logger.info(f"The text {searchstring} is not in the {message}")
+            logger.info(
+                f"The text {searchstring1} or {searchstring2} is not in the message"
+            )
             continue
 
-        logger.info(f"======Before Regex:")
-        task_match = re.search(r"(Mission)\s*(\d+)", message)
-        # task_match = re.search(r"(Mission Nr\.|Aufgaben Nr\.)\s*(\d+)", message)
+        logger.info("======Before Regex:")
+        # task_match = re.search(r"(Mission)\s*(\d+)", message)
+        task_match = re.search(r"(Mission Nr\.|Aufgaben Nr\.)\s*(\d+)", message)
         logger.info(f"Task Match: {task_match}")
         link_match = re.search(r"(https?://[^\s]+)", message)
         # link_match = re.search(r"(https\*\*?://[^\s]+)", message)

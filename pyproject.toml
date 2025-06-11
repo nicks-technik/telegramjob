@@ -1,0 +1,14 @@
+[project]
+name = "telegramjob"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "oauthlib>=3.2.2",
+    "python-dotenv>=1.1.0",
+    "requests>=2.32.3",
+    "telethon>=1.39.0",
+    "urllib3>=2.4.0",
+]

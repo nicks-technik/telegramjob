@@ -1,10 +1,14 @@
 import os
-from logger_config import logger
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 import pickle
+from typing import Optional
+
+from google.auth.transport.requests import Request
+
+# from google.oauth2 import service_account
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+
+from logger_config import logger
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]  # Correct Scope!
 API_SERVICE_NAME = "youtube"
@@ -59,9 +63,6 @@ def subscribe_to_channel(creds, channel_id):
         return True
     except Exception as subcriptionDuplicate:
         logger.error(f"An error occurred: {subcriptionDuplicate}")
-        return True
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
         return False
 
 
@@ -75,9 +76,8 @@ def like_video(creds, video_id):
     Returns:
         bool: True if the like operation was successful, False otherwise.
     """
-
+    return_value = False
     for i in range(2):
-
         try:
             youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
             request = youtube.videos().rate(id=video_id, rating="like")
@@ -88,11 +88,10 @@ def like_video(creds, video_id):
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             return_value = False
-
     return return_value
 
 
-def extract_video_id(url) -> str:
+def extract_video_id(url) -> Optional[str]:
     """Extracts the YouTube video ID from a URL.
 
     Args:
@@ -118,7 +117,6 @@ def extract_video_id(url) -> str:
 
 
 def check_login():
-
     creds = None
     if os.path.exists("token.pickle"):
         with open("token.pickle", "rb") as token:
@@ -135,13 +133,13 @@ def check_login():
 
 
 if __name__ == "__main__":
-    video_id = "kCDUbJU99F8"  # Replace with the actual video ID
+    video_id = "sHbcSSDTNA0"  # Replace with the actual video ID
     creds = check_login()
 
     channel_id = get_channel_id_from_video_id(creds, video_id)
     if channel_id:
-        if like_video(video_id):
-            if subscribe_to_channel(channel_id):
+        if like_video(creds, video_id):
+            if subscribe_to_channel(creds, channel_id):
                 logger.info(f"Successfully liked and subscribed to video: {video_id}")
             else:
                 logger.info(
