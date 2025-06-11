@@ -9,7 +9,8 @@ from logger_config import logger
 
 load_dotenv()
 
-headless: bool = os.getenv(key="ENV_HEADLESS") == "True"
+headless: bool = os.getenv(key="ENV_HEADLESS") == "False"
+# headless: bool = os.getenv(key="ENV_HEADLESS") == "True"
 logger.info(f"headless: {headless}")
 
 
