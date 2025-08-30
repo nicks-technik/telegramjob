@@ -1,14 +1,15 @@
 import os
 import random
-import re
-from time import sleep
-from telethon.sync import TelegramClient
 from datetime import datetime
+from time import sleep
+
+from telethon.sync import TelegramClient
+
 import telegramstuff  # Read the messages from the Telegram channel
-from logger_config import logger
-from playwrightstuff import PlaywrightBrowser
-from message_parser import extract_jobs_from_messages
 from config import Config
+from logger_config import logger
+from message_parser import extract_jobs_from_messages
+from playwrightstuff import PlaywrightBrowser
 
 api_id: int = Config.API_ID
 api_hash: str = Config.API_HASH
@@ -19,15 +20,16 @@ wait_max: int = Config.WAIT_MAX
 telegram_limit: int = Config.TELEGRAM_LIMIT
 
 
-def random_sleep(min: int, max: int) -> None:
-    """Pauses the execution of the program for a random amount of time between 60 and 180 seconds.
-    The function generates a random integer between 60 and 180 (inclusive) and then
+def random_sleep(min_val: int, max_val: int) -> None:
+    """Pauses the execution of the program for a random amount of time.
+    The function generates a random integer between min_val and max_val (inclusive) and then
     logs this value. It then pauses the execution for the generated number of seconds.
-    Returns:
-        None
+    Args:
+        min_val (int): The minimum number of seconds to sleep.
+        max_val (int): The maximum number of seconds to sleep.
     """
-    sleep_time = random.randint(min, max)
-    logger.warning(f"Sleeping for {sleep_time} seconds...")
+    sleep_time = random.randint(min_val, max_val)
+    logger.info(f"Sleeping for {sleep_time} seconds...")
     sleep(sleep_time)
 
 
@@ -35,7 +37,7 @@ async def process_job(job, client, destination_chat_id):
     """
     Processes a single job: takes a screenshot, and sends it via Telegram.
     """
-    logger.warning(f"Job: {job}")
+    logger.info(f"Processing job: {job}")
     url = job["url"]
     task_number = job["task_number"]
     today = datetime.now().strftime("%y%m%d")
@@ -57,14 +59,15 @@ async def process_job(job, client, destination_chat_id):
     if await telegramstuff.send_picture(
         client, destination_chat_id, new_filename, task_number
     ):
-        logger.warning(f"DONE: {job}")
+        logger.info(f"Successfully processed job: {job}")
     else:
-        logger.error(f"ERROR ERROR ERROR Failed to send picture for job: {job}")
+        logger.error(f"Failed to send picture for job: {job}")
 
 
 async def main() -> None:
-    dialogs = await client.get_dialogs()
-
+    """
+    The main function of the application.
+    """
     messages = await telegramstuff.scrape_message(
         client, source_chat_id, limit=telegram_limit
     )
@@ -72,7 +75,8 @@ async def main() -> None:
 
     jobs = extract_jobs_from_messages(messages)
 
-    logger.info(f"Found jobs: {jobs}")
+    logger.info(f"Found {len(jobs)} jobs.")
+    logger.debug(f"Jobs: {jobs}")
 
     if not jobs:
         logger.warning("No jobs found.")
@@ -86,7 +90,7 @@ async def main() -> None:
 if __name__ == "__main__":
     random_sleep(wait_min, wait_max)
     client = TelegramClient("telegram", Config.API_ID, Config.API_HASH)
-    logger.info("After TelegramClient")
+    logger.info("Telegram client created.")
 
     with client:
         client.loop.run_until_complete(main())

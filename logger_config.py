@@ -30,8 +30,8 @@ def setup_logger(log_file="app.log", console_level=logging.WARNING):
         fmt="%(asctime)s-%(levelname)s-%(filename)s-%(funcName)s-%(lineno)d- %(message)s",
         datefmt="%d.%m.%y %H:%M:%S",
         level_styles={
-            'debug': {'color': 'green'},
-            'info': {'color': 'cyan'},
+            'debug': {'color': 'blue'},
+            'info': {'color': 'green'},
             'warning': {'color': 'yellow'},
             'error': {'color': 'red'},
             'critical': {'color': 'red', 'bold': True},

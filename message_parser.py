@@ -14,19 +14,19 @@ def extract_jobs_from_messages(messages):
         the task number and youtube link,
         or an empty list if no data could be extracted.
     """
-    logger.debug("In Extracting info from messages...")
+    logger.debug("Extracting info from messages...")
     extracted_data = []
     for message in messages:
         if "Tätigkeit" not in message:
-            logger.debug(f"The text 'Tätigkeit' is not in the {message}")
+            logger.debug(f"The text 'Tätigkeit' is not in the message: {message}")
             continue
 
-        logger.info(msg=f"==Actual Message: {message}")
+        logger.debug(f"Processing message: {message}")
         message = message.replace("**", "")
         message = message.replace("https**://", "https://")
 
         if "https://www.otto.de" not in message and "https://" not in message:
-            logger.info(f"Neither 'https://www.otto.de' nor 'https://' is in the message")
+            logger.debug(f"Neither 'https://www.otto.de' nor 'https://' is in the message")
             continue
 
         task_match = re.search(

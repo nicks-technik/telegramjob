@@ -1,8 +1,6 @@
-
 from logger_config import logger
 
 from telethon.sync import TelegramClient
-from datetime import datetime
 from config import Config
 
 
@@ -20,25 +18,21 @@ async def send_picture(client, destination_chat_id, filename: str, caption: str)
         bool: True if the picture was sent successfully, False otherwise.
 
     """
-    return_value = False
     for i in range(2):
         try:
             await client.send_file(
                 destination_chat_id, f"./png/{filename}", caption=caption
             )
 
-            logger.warning(
+            logger.info(
                 f"Screenshot sent: {filename} to {destination_chat_id}"
             )
-            return_value = True
+            return True
+            # only the last received job should be executed
             break
         except Exception as e:
             logger.error(f"Error sending screenshot {filename}: {e}")
-            return_value = False
-    return return_value
-
-
-
+    return False
 
 
 async def scrape_message(client, channel, limit=50):
@@ -64,6 +58,3 @@ async def scrape_message(client, channel, limit=50):
             logger.debug("-" * 40)
             messages.append(message.text)
     return messages
-
-
-
