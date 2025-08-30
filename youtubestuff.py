@@ -4,92 +4,104 @@ from typing import Optional
 
 from google.auth.transport.requests import Request
 
-# from google.oauth2 import service_account
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 from logger_config import logger
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]  # Correct Scope!
-API_SERVICE_NAME = "youtube"
-API_VERSION = "v3"
+class YouTubeClient:
+    SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+    API_SERVICE_NAME = "youtube"
+    API_VERSION = "v3"
 
+    def __init__(self):
+        self.creds = self._check_login()
+        self.youtube = build(self.API_SERVICE_NAME, self.API_VERSION, credentials=self.creds)
 
-def get_channel_id_from_video_id(creds, video_id):
-    """
-    Gets the channel ID from the video ID.
+    def _check_login(self):
+        creds = None
+        if os.path.exists("token.pickle"):
+            with open("token.pickle", "rb") as token:
+                creds = pickle.load(token)
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", self.SCOPES)
+                creds = flow.run_local_server(port=0)
+            with open("token.pickle", "wb") as token:
+                pickle.dump(creds, token)
+        return creds
 
-    Args:
-        video_id (str): The ID of the video.
+    def get_channel_id_from_video_id(self, video_id):
+        """
+        Gets the channel ID from the video ID.
 
-    Returns:
-        str: The ID of the channel, or None if an error occurs.
-    """
-    try:
-        youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-        request = youtube.videos().list(part="snippet", id=video_id)
-        response = request.execute()
-        if "items" in response and len(response["items"]) > 0:
-            return response["items"][0]["snippet"]["channelId"]
-        else:
-            return None
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        return None
+        Args:
+            video_id (str): The ID of the video.
 
-
-def subscribe_to_channel(creds, channel_id):
-    """
-    Subscribes to a YouTube channel using the YouTube Data API.
-
-    Args:
-        channel_id (str): The ID of the channel to subscribe to.
-
-    Returns:
-        bool: True if subscription was successful, False otherwise.
-    """
-
-    try:
-        youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-        request = youtube.subscriptions().insert(
-            part="snippet",
-            body={
-                "snippet": {
-                    "resourceId": {"kind": "youtube#channel", "channelId": channel_id}
-                }
-            },
-        )
-        request.execute()
-        return True
-    except Exception as subcriptionDuplicate:
-        logger.error(f"An error occurred: {subcriptionDuplicate}")
-        return False
-
-
-def like_video(creds, video_id):
-    """
-    Likes a specified video using the YouTube Data API.
-
-    Args:
-        video_id (str): The ID of the video to like.
-
-    Returns:
-        bool: True if the like operation was successful, False otherwise.
-    """
-    return_value = False
-    for i in range(2):
+        Returns:
+            str: The ID of the channel, or None if an error occurs.
+        """
         try:
-            youtube = build(API_SERVICE_NAME, API_VERSION, credentials=creds)
-            request = youtube.videos().rate(id=video_id, rating="like")
-            request.execute()
-            logger.warning(f"Video {video_id} liked.")
-            return_value = True
-            break
+            request = self.youtube.videos().list(part="snippet", id=video_id)
+            response = request.execute()
+            if "items" in response and len(response["items"]) > 0:
+                return response["items"][0]["snippet"]["channelId"]
+            else:
+                return None
         except Exception as e:
             logger.error(f"An error occurred: {e}")
-            return_value = False
-    return return_value
+            return None
 
+    def subscribe_to_channel(self, channel_id):
+        """
+        Subscribes to a YouTube channel using the YouTube Data API.
+
+        Args:
+            channel_id (str): The ID of the channel to subscribe to.
+
+        Returns:
+            bool: True if subscription was successful, False otherwise.
+        """
+        try:
+            request = self.youtube.subscriptions().insert(
+                part="snippet",
+                body={
+                    "snippet": {
+                        "resourceId": {"kind": "youtube#channel", "channelId": channel_id}
+                    }
+                },
+            )
+            request.execute()
+            return True
+        except Exception as subscription_duplicate: # Fixed typo
+            logger.error(f"An error occurred: {subscription_duplicate}")
+            return False
+
+    def like_video(self, video_id):
+        """
+        Likes a specified video using the YouTube Data API.
+
+        Args:
+            video_id (str): The ID of the video to like.
+
+        Returns:
+            bool: True if the like operation was successful, False otherwise.
+        """
+        return_value = False
+        for i in range(2):
+            try:
+                request = self.youtube.videos().rate(id=video_id, rating="like")
+                request.execute()
+                logger.warning(f"Video {video_id} liked.")
+                return_value = True
+                break
+            except Exception as e:
+                logger.error(f"An error occurred: {e}")
+                return_value = False
+        return return_value
 
 def extract_video_id(url) -> Optional[str]:
     """Extracts the YouTube video ID from a URL.
@@ -116,36 +128,4 @@ def extract_video_id(url) -> Optional[str]:
         return None
 
 
-def check_login():
-    creds = None
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.pickle", "wb") as token:
-            pickle.dump(creds, token)
-    return creds
 
-
-if __name__ == "__main__":
-    video_id = "sHbcSSDTNA0"  # Replace with the actual video ID
-    creds = check_login()
-
-    channel_id = get_channel_id_from_video_id(creds, video_id)
-    if channel_id:
-        if like_video(creds, video_id):
-            if subscribe_to_channel(creds, channel_id):
-                logger.info(f"Successfully liked and subscribed to video: {video_id}")
-            else:
-                logger.info(
-                    f"Successfully liked video, but failed to subscribe to channel: {video_id}"
-                )
-        else:
-            logger.error(f"Failed to like video: {video_id}")
-    else:
-        logger.error(f"Could not get the channel ID for video id: {video_id}")
