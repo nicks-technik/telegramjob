@@ -1,6 +1,8 @@
 import re
 
+from config import Config
 from logger_config import logger
+
 
 def extract_jobs_from_messages(messages):
     """
@@ -17,20 +19,25 @@ def extract_jobs_from_messages(messages):
     logger.debug("Extracting info from messages...")
     extracted_data = []
     for message in messages:
-        if "Tätigkeit" not in message:
-            logger.debug(f"The text 'Tätigkeit' is not in the message: {message}")
+        if Config.SPECIFIC_TEXT not in message:
+            logger.debug(
+                f"The text '{Config.SPECIFIC_TEXT}' is not in the message: {message}"
+            )
             continue
 
         logger.debug(f"Processing message: {message}")
         message = message.replace("**", "")
         message = message.replace("https**://", "https://")
 
-        if "https://www.otto.de" not in message and "https://" not in message:
-            logger.debug(f"Neither 'https://www.otto.de' nor 'https://' is in the message")
+        if "https://" not in message:
+            logger.debug("'https://' is in the message")
             continue
 
         task_match = re.search(
-            r"(?:Mission Nr\.|Aufgaben Nr\.|Tätigkeit)\.?\s*(\d+)", message
+            r"(?:Mission Nr\.|Aufgaben Nr\.|{SPECIFIC_TEXT})\.?\s*(\d+)".format(
+                SPECIFIC_TEXT=Config.SPECIFIC_TEXT
+            ),
+            message,
         )
         link_match = re.search(r"(https?://[^\s]+)", message)
 
