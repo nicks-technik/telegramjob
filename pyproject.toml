@@ -11,4 +11,5 @@ dependencies = [
     "python-dotenv>=1.1.1",
     "telethon>=1.40.0",
     "coloredlogs>=15.0.1",
+    "pylint>=3.3.8",
 ]
