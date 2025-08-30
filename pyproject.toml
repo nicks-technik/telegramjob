@@ -10,4 +10,5 @@ dependencies = [
     "playwright>=1.54.0",
     "python-dotenv>=1.1.1",
     "telethon>=1.40.0",
+    "coloredlogs>=15.0.1",
 ]
