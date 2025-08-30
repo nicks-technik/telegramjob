@@ -14,3 +14,4 @@ class Config:
     HEADLESS: bool = os.getenv(key="ENV_HEADLESS", default="False").lower() == "true"
     YOUTUBE_EMAIL: str = os.getenv(key="ENV_YOUTUBE_EMAIL", default="")
     YOUTUBE_PASSWORD: str = os.getenv(key="ENV_YOUTUBE_PASSWORD", default="")
+    SPECIFIC_TEXT: str = os.getenv(key="ENV_SPECIFIC_TEXT", default="")
