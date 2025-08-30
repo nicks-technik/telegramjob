@@ -1,3 +1,5 @@
+"""This module provides functions to parse Telegram messages and extract job-related information."""
+
 import re
 
 from config import Config
@@ -19,10 +21,8 @@ def extract_jobs_from_messages(messages):
     logger.debug("Extracting info from messages...")
     extracted_data = []
     for message in messages:
-        if Config.SPECIFIC_TEXT not in message:
-            logger.debug(
-                f"The text '{Config.SPECIFIC_TEXT}' is not in the message: {message}"
-            )
+        if not any(text in message for text in Config.SPECIFIC_TEXTS):
+            logger.debug(f"None of the specific texts found in message: {message}")
             continue
 
         logger.debug(f"Processing message: {message}")
@@ -33,10 +33,11 @@ def extract_jobs_from_messages(messages):
             logger.debug("'https://' is in the message")
             continue
 
+        specific_texts_pattern = "|".join(
+            re.escape(text) for text in Config.SPECIFIC_TEXTS
+        )
         task_match = re.search(
-            r"(?:Mission Nr\.|Aufgaben Nr\.|{SPECIFIC_TEXT})\.?\s*(\d+)".format(
-                SPECIFIC_TEXT=Config.SPECIFIC_TEXT
-            ),
+            rf"(?:{specific_texts_pattern})\.?\s*(\d+)",
             message,
         )
         link_match = re.search(r"(https?://[^\s]+)", message)

@@ -1,9 +1,15 @@
+"""Configuration settings for the Telegram Job project."""
+
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
+
 class Config:
+    """Stores all configuration settings for the application."""
+
     API_ID: int = int(os.getenv(key="ENV_API_ID", default="0"))
     API_HASH: str = os.getenv(key="ENV_API_HASH", default="")
     DESTINATION_CHAT_ID: int = int(os.getenv("ENV_DESTINATION_CHAT_ID", default="0"))
@@ -14,4 +20,6 @@ class Config:
     HEADLESS: bool = os.getenv(key="ENV_HEADLESS", default="False").lower() == "true"
     YOUTUBE_EMAIL: str = os.getenv(key="ENV_YOUTUBE_EMAIL", default="")
     YOUTUBE_PASSWORD: str = os.getenv(key="ENV_YOUTUBE_PASSWORD", default="")
-    SPECIFIC_TEXT: str = os.getenv(key="ENV_SPECIFIC_TEXT", default="")
+    SPECIFIC_TEXTS: list[str] = os.getenv(key="ENV_SPECIFIC_TEXTS", default="").split(
+        ","
+    )

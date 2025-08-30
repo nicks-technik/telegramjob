@@ -1,3 +1,6 @@
+"""This script automates the process of extracting job information from Telegram messages,
+taking screenshots of associated YouTube links, and sending them via Telegram.
+"""
 import os
 import random
 from datetime import datetime
