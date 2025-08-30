@@ -19,7 +19,7 @@ fi
 #python3 ./telegramjob.py | tee ./cron.log 2>&1
 # python3 ./telegramjob.py
 
-uv run ./telegramjob.py
+uv run ./telegramjob.py "$@"
 #     sleep 900 # wait for 10 minutes
 # done
 

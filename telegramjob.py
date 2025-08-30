@@ -6,6 +6,7 @@ import random
 from datetime import datetime
 from time import sleep
 
+import argparse # Added this import
 from telethon.sync import TelegramClient
 
 import telegramstuff  # Read the messages from the Telegram channel
@@ -13,6 +14,23 @@ from config import Config
 from logger_config import logger
 from message_parser import extract_jobs_from_messages
 from playwrightstuff import PlaywrightBrowser
+
+# Added argparse setup
+parser = argparse.ArgumentParser(description="Telegram Job Scraper")
+parser.add_argument(
+    "--env-file",
+    type=str,
+    default=".env",
+    help="Path to the .env file to load (default: .env)",
+)
+args = parser.parse_args()
+
+# Resolve the .env file path to an absolute path
+env_file_path = os.path.abspath(args.env_file)
+
+# Pass the absolute env_file path to Config
+Config.load_env_file(env_file_path)
+Config.init_config() # Call init_config to load values after .env is loaded
 
 api_id: int = Config.API_ID
 api_hash: str = Config.API_HASH
