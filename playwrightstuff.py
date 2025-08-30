@@ -1,7 +1,6 @@
-import sys
-import os
-
-
+"""
+This module contains the PlaywrightBrowser class which is used to interact with web pages.
+"""
 from playwright.async_api import async_playwright
 from logger_config import logger
 
@@ -11,14 +10,24 @@ from config import Config
 headless: bool = Config.HEADLESS
 logger.info(f"headless: {headless}")
 
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/119.0.0.0 Safari/537.36"
+)
+
 
 class PlaywrightBrowser:
+    """A class to manage a Playwright browser instance."""
+
     def __init__(self):
+        """Initializes the PlaywrightBrowser instance."""
         self.browser = None
         self.page = None
         self.playwright = None
 
     async def launch(self):
+        """Launches the browser and creates a new page."""
         self.playwright = await async_playwright().start()
         user_data_dir = "./tmp"
         self.browser = await self.playwright.chromium.launch_persistent_context(
@@ -26,12 +35,13 @@ class PlaywrightBrowser:
             headless=Config.HEADLESS,
             args=[
                 "--disable-blink-features=AutomationControlled",
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+                f"--user-agent={USER_AGENT}",
             ],
         )
         self.page = await self.browser.new_page()
 
     async def close(self):
+        """Closes the browser and the Playwright instance."""
         if self.browser:
             await self.browser.close()
         if self.playwright:
@@ -69,12 +79,12 @@ class PlaywrightBrowser:
         if not self.page:
             await self.launch()
         try:
-            # await self.youtube_login(Config.YOUTUBE_EMAIL, Config.YOUTUBE_PASSWORD)
             await self.page.goto(url)
             await self.page.wait_for_load_state("domcontentloaded")
             await self.page.wait_for_load_state("networkidle")
             await self.page.screenshot(path="./png/" + video_id + ".png")
-            logger.warning(f"Screenshot saved for video ID: {video_id}")
+            logger.info(f"Screenshot saved for video ID: {video_id}")
+        # pylint: disable=broad-exception-caught
         except Exception as e:
             logger.error(f"An error occurred: {e}")
         finally:
