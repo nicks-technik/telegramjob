@@ -24,7 +24,7 @@ These instructions will get you a copy of the project up and running on your loc
 
     ```bash
     uv venv
-    uv pip install -r requirements.txt
+    uv pip install .
     ```
 
 3.  **Install Playwright browsers:**
@@ -43,8 +43,7 @@ These instructions will get you a copy of the project up and running on your loc
 
     You will need to provide:
     - Telegram API credentials (`API_ID`, `API_HASH`)
-    - Source and destination chat IDs (`SOURCE_CHAT_ID`, `DESTINATION_CHAT_ID`)
-    - YouTube credentials if needed (`YOUTUBE_EMAIL`, `YOUTUBE_PASSWORD`)
+    - Source and destination chat IDs (`SOURCE_CHAT_ID`, `DESTINATION_CHAT_ID`). You can obtain these by visiting https://web.telegram.org/a/ and inspecting the URL when you are in the desired chat.
 
 5.  **Set up Google API credentials:**
 

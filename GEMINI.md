@@ -7,7 +7,7 @@ This document outlines the best practices and conventions to be followed in this
 *   **Configuration:** All configuration should be stored in `config.py`. No hardcoded values in the code.
 *   **Secrets:** Sensitive information like API keys and tokens must be stored in a `.env` file and not committed to version control. Use `.env.example` as a template.
 *   **Logging:** Use the `logger_config.py` for consistent logging throughout the application.
-*   **Dependencies:** All Python dependencies are managed with `uv` and are listed in `requirements.txt`.
+*   **Dependencies:** All Python dependencies are managed with `uv` and defined in `pyproject.toml`. The `requirements.txt` file is not strictly necessary for dependency management but can be used for specific environment freezes.
 
 ## Python Best Practices
 

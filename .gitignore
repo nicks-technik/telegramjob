@@ -181,3 +181,5 @@ tmp/
 *.png
 *.jpg
 listApps.ps
+.envcopy
+uv.lock
