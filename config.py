@@ -30,11 +30,9 @@ class Config:
         Config.WAIT_MAX = int(os.getenv("ENV_WAIT_MAX", default="300"))
         Config.TELEGRAM_LIMIT = int(os.getenv("ENV_TELEGRAM_LIMIT", default="100"))
         Config.HEADLESS = os.getenv(key="ENV_HEADLESS", default="False").lower() == "true"
-        Config.YOUTUBE_EMAIL = os.getenv(key="ENV_YOUTUBE_EMAIL", default="")
-        Config.YOUTUBE_PASSWORD = os.getenv(key="ENV_YOUTUBE_PASSWORD", default="")
+        Config.AUTH_FILE = os.getenv(key="ENV_AUTH_FILE", default="credentials").lower()
         Config.SPECIFIC_TEXTS = os.getenv(key="ENV_SPECIFIC_TEXTS", default="").split(
-            ","
-        )
+            ",")
         logger.info(f"Config initialized. API_ID: {Config.API_ID}, API_HASH: {Config.API_HASH[:5]}...") # Log first 5 chars of hash
 
 
@@ -47,7 +45,6 @@ class Config:
     WAIT_MAX: int = 0
     TELEGRAM_LIMIT: int = 0
     HEADLESS: bool = False
-    YOUTUBE_EMAIL: str = ""
-    YOUTUBE_PASSWORD: str = ""
+    YOUTUBE_ACTION: str = "" # New: default action for YouTube URLs
+    AUTH_FILE: str = "" # New: path to Playwright auth file
     SPECIFIC_TEXTS: list[str] = []
-
