@@ -47,3 +47,7 @@ This document outlines the best practices and conventions to be followed in this
 *   **Subject:** The subject line should be a concise summary of the change (max 50 chars).
 *   **Body:** The body should explain the "what" and "why" of the change.
 *   **Type:** Use a type prefix like `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`.
+
+## Changes
+
+*   Make only small changes in the agent
