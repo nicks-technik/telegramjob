@@ -1,10 +1,12 @@
 """
 This module contains the PlaywrightBrowser class which is used to interact with web pages.
 """
+
+import os
+import argparse
+import asyncio
 from playwright.async_api import async_playwright
 from logger_config import logger
-
-
 from config import Config
 
 headless: bool = Config.HEADLESS
@@ -60,20 +62,6 @@ class PlaywrightBrowser:
         await self.page.screenshot(path=f"./png/{filename}")
         logger.info(f"Screenshot saved to ./png/{filename}")
 
-    async def youtube_login(self, email, password):
-        """Logs into YouTube with the provided credentials."""
-        if not self.page:
-            await self.launch()
-        await self.page.goto("https://accounts.google.com/login")
-
-        await self.page.locator('input[type="email"]').type(email)
-        await self.page.locator("#identifierNext").click()
-        await self.page.wait_for_selector('input[type="password"]', state="visible")
-        await self.page.locator('input[type="password"]').type(password)
-        await self.page.locator("#passwordNext").click()
-        await self.page.wait_for_selector("#avatar-btn", state="visible")
-        logger.info("Login Successful")
-
     async def process_youtube_video(self, url, video_id):
         """Opens a browser, logs in, likes, and subscribes."""
         if not self.page:
@@ -89,3 +77,60 @@ class PlaywrightBrowser:
             logger.error(f"An error occurred: {e}")
         finally:
             await self.close()
+
+
+if __name__ == "__main__":
+
+    async def generate_auth_file():
+        browser_instance = PlaywrightBrowser()
+        try:
+            # Load environment variables and initialize config
+            parser = argparse.ArgumentParser(
+                description="Generate Playwright auth file."
+            )
+            parser.add_argument(
+                "--env-file",
+                type=str,
+                default=".env",
+                help="Path to the .env file to load (default: .env)",
+            )
+            args = parser.parse_args()
+            env_file_path = os.path.abspath(args.env_file)
+            Config.load_env_file(env_file_path)
+            Config.init_config()
+
+            # Launch browser in headful mode for manual login
+            browser_instance.playwright = await async_playwright().start()
+            browser_instance.browser = (
+                await browser_instance.playwright.chromium.launch_persistent_context(
+                    "./tmp",
+                    headless=False,  # Force headful for manual login
+                    args=[
+                        "--disable-blink-features=AutomationControlled",
+                        f"--user-agent={USER_AGENT}",
+                    ],
+                )
+            )
+            browser_instance.page = await browser_instance.browser.new_page()
+
+            logger.info(
+                f"Please log in to YouTube/Google in the opened browser window. Auth file will be saved to: {Config.AUTH_FILE}"
+            )
+            logger.info("Press Enter in this console after you have logged in.")
+
+            # Navigate to YouTube to prompt login
+            await browser_instance.page.goto("https://www.youtube.com")
+
+            input("Press Enter to continue...")  # Wait for user input
+            await browser_instance.browser.storage_state(path=Config.AUTH_FILE)
+            logger.info(f"Browser storage state saved to {Config.AUTH_FILE}")
+
+        except Exception as e:
+            logger.error(f"An error occurred during auth file generation: {e}")
+        finally:
+            if browser_instance.browser:
+                await browser_instance.browser.close()
+            if browser_instance.playwright:
+                await browser_instance.playwright.stop()
+
+    asyncio.run(generate_auth_file())
