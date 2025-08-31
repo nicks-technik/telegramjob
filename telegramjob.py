@@ -14,6 +14,7 @@ from config import Config
 from logger_config import logger
 from message_parser import extract_jobs_from_messages
 from playwrightstuff import PlaywrightBrowser
+from youtubestuff import YouTubeClient, extract_video_id # New imports
 
 # Added argparse setup
 parser = argparse.ArgumentParser(description="Telegram Job Scraper")
@@ -39,6 +40,7 @@ source_chat_id: int = Config.SOURCE_CHAT_ID
 wait_min: int = Config.WAIT_MIN
 wait_max: int = Config.WAIT_MAX
 telegram_limit: int = Config.TELEGRAM_LIMIT
+auth_file: str = Config.AUTH_FILE
 
 
 def random_sleep(min_val: int, max_val: int) -> None:
@@ -69,6 +71,16 @@ async def process_job(job, client, destination_chat_id):
             f"Screenshot already exists for task: {task_number}. Filename: {new_filename} Skipping."
         )
         return
+
+    # Check for YouTube action
+    video_id = extract_video_id(url)
+    if video_id and Config.YOUTUBE_ACTION == "youtube_engage":
+        logger.info(f"Performing YouTube engagement for video: {video_id}")
+        youtube_client = YouTubeClient()
+        channel_id = youtube_client.get_channel_id_from_video_id(video_id)
+        if channel_id:
+            youtube_client.subscribe_to_channel(channel_id)
+        youtube_client.like_video(video_id)
 
     browser = PlaywrightBrowser()
     try:
