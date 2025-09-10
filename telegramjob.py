@@ -1,12 +1,13 @@
 """This script automates the process of extracting job information from Telegram messages,
 taking screenshots of associated YouTube links, and sending them via Telegram.
 """
+
+import argparse  # Added this import
 import os
 import random
 from datetime import datetime
 from time import sleep
 
-import argparse # Added this import
 from telethon.sync import TelegramClient
 
 import telegramstuff  # Read the messages from the Telegram channel
@@ -14,7 +15,6 @@ from config import Config
 from logger_config import logger
 from message_parser import extract_jobs_from_messages
 from playwrightstuff import PlaywrightBrowser
-from youtubestuff import YouTubeClient, extract_video_id # New imports
 
 # Added argparse setup
 parser = argparse.ArgumentParser(description="Telegram Job Scraper")
@@ -31,7 +31,7 @@ env_file_path = os.path.abspath(args.env_file)
 
 # Pass the absolute env_file path to Config
 Config.load_env_file(env_file_path)
-Config.init_config() # Call init_config to load values after .env is loaded
+Config.init_config()  # Call init_config to load values after .env is loaded
 
 api_id: int = Config.API_ID
 api_hash: str = Config.API_HASH
@@ -73,14 +73,7 @@ async def process_job(job, client, destination_chat_id):
         return
 
     # Check for YouTube action
-    video_id = extract_video_id(url)
-    if video_id and Config.YOUTUBE_ACTION == "youtube_engage":
-        logger.info(f"Performing YouTube engagement for video: {video_id}")
-        youtube_client = YouTubeClient()
-        channel_id = youtube_client.get_channel_id_from_video_id(video_id)
-        if channel_id:
-            youtube_client.subscribe_to_channel(channel_id)
-        youtube_client.like_video(video_id)
+    # video_id = extract_video_id(url)
 
     browser = PlaywrightBrowser()
     try:
