@@ -2,7 +2,9 @@
 This module contains the PlaywrightBrowser class which is used to interact with web pages.
 """
 
-from playwright.async_api import async_playwright
+import os
+
+from playwright.sync_api import sync_playwright
 
 from config import Config
 from logger_config import logger
@@ -59,3 +61,29 @@ class PlaywrightBrowser:
         await self.page.goto(url)
         await self.page.screenshot(path=f"./png/{filename}")
         logger.info(f"Screenshot saved to ./png/{filename}")
+
+
+# uv run python3 playwrightstuff.py
+# creates a youtube_state.json if it is not existing
+if __name__ == "__main__":
+    storage_path = "youtube_state.json"
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=False,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                f"--user-agent={USER_AGENT}",
+            ],
+        )
+        if os.path.exists(storage_path):
+            context = browser.new_context(storage_state=storage_path)
+            print(f"Loaded storage state from {storage_path}")
+        else:
+            context = browser.new_context()
+        page = context.new_page()
+        page.goto("https://www.youtube.com")
+        if not os.path.exists(storage_path):
+            input("Please log in to YouTube and then press Enter to continue...")
+            context.storage_state(path=storage_path)
+            print(f"Storage state saved to {storage_path}")
+        browser.close()
