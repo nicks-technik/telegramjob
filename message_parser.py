@@ -8,14 +8,14 @@ from logger_config import logger
 
 def extract_jobs_from_messages(messages):
     """
-    Extracts task numbers and YouTube links from a list of messages.
+    Extracts task numbers and links from a list of messages.
 
     Args:
         messages (list): A list of strings (messages).
 
     Returns:
         list: A list of dictionaries, where each dictionary contains
-        the task number and youtube link,
+        the task number and link,
         or an empty list if no data could be extracted.
     """
     logger.debug("Extracting info from messages...")

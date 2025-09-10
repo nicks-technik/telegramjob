@@ -19,9 +19,6 @@ uv run playwright install chromium
 cp .env.example .env
 # Edit .env with your credentials
 
-# Authenticate with YouTube
-uv run python youtube_auth.py
-
 # Run the main script
 uv run python telegramjob.py
 ```
@@ -89,17 +86,6 @@ uv sync --upgrade-package package-name
 ```
 
 ## Project-Specific Setup
-
-### YouTube Authentication
-
-The project includes a streamlined YouTube authentication system:
-
-```bash
-# First time setup - will open browser for login
-uv run python youtube_auth.py
-```
-
-This creates `token.pickle` which stores your YouTube session. Subsequent runs will automatically use the saved session.
 
 ### Telegram Configuration
 

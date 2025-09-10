@@ -1,7 +1,7 @@
 [project]
 name = "telegramjob"
 version = "0.1.0"
-description = "A Telegram bot that automates YouTube video liking and channel subscriptions."
+description = "A Telegram bot that automates screenshots."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

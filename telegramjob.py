@@ -1,5 +1,5 @@
 """This script automates the process of extracting job information from Telegram messages,
-taking screenshots of associated YouTube links, and sending them via Telegram.
+taking screenshots of associated links, and sending them via Telegram.
 """
 
 import argparse  # Added this import
@@ -71,9 +71,6 @@ async def process_job(job, client, destination_chat_id):
             f"Screenshot already exists for task: {task_number}. Filename: {new_filename} Skipping."
         )
         return
-
-    # Check for YouTube action
-    # video_id = extract_video_id(url)
 
     browser = PlaywrightBrowser()
     try:
