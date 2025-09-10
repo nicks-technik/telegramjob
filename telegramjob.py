@@ -10,10 +10,12 @@ from time import sleep
 
 from telethon.sync import TelegramClient
 
-# Read the messages from the Telegram channelfrom config import Config
+# Read the messages from the Telegram channel
+from config import Config
 from logger_config import logger
 from message_parser import extract_jobs_from_messages
 from playwrightstuff import PlaywrightBrowser
+import telegramstuff  # type: ignore
 
 # --- Argument Parsing ---
 # Setup command-line argument parsing to allow for a configurable .env file path.
