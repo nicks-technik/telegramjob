@@ -175,7 +175,7 @@ user_data_dir/
 NickTHorn.jpg
 telegram.session
 token.pickle
-client_secret_ytsubscribe.json
+client_secret*.json
 tmp/
 *.png
 *.jpg
@@ -183,3 +183,5 @@ listApps.ps
 .envcopy
 uv.lock
 *.pkl
+*.pickle
+credentials.json
