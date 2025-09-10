@@ -40,7 +40,7 @@ source_chat_id: int = Config.SOURCE_CHAT_ID
 wait_min: int = Config.WAIT_MIN
 wait_max: int = Config.WAIT_MAX
 telegram_limit: int = Config.TELEGRAM_LIMIT
-auth_file: str = Config.AUTH_FILE
+# auth_file: str = Config.AUTH_FILE
 
 
 def random_sleep(min_val: int, max_val: int) -> None:
