@@ -1,8 +1,11 @@
-import os
 import re
+
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
+
+# import config
+from config import Config
 
 
 class YouTubeAPI:
@@ -14,7 +17,7 @@ class YouTubeAPI:
     def get_authenticated_service(self):
         # Disable OAuthlib's HTTPS verification when running locally.
         # *DO NOT* leave this option enabled in production.
-        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+        # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
         api_service_name = "youtube"
         api_version = "v3"
@@ -81,13 +84,21 @@ class YouTubeAPI:
             print(f"An HTTP error {e.resp.status} occurred: {e.content}")
 
 
-# Example usage:
+# Usage: uv run python3 youtube_api.py
 if __name__ == "__main__":
-    # This should be stored securely and not hardcoded
-    CLIENT_SECRETS_FILE = "client_secret.json"
-    SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+    # Pass the absolute env_file path to Config
+    Config.load_env_file()
+    Config.init_config()  # Call init_config to load values after .env is loaded
 
-    youtube_api = YouTubeAPI(CLIENT_SECRETS_FILE, SCOPES)
+    client_secrets_file: str = Config.CLIENT_SECRETS_FILE
+
+    if not client_secrets_file:
+        raise ValueError(
+            "YouTube client secrets file not found. Please set the path in your .env file."
+        )
+    scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+
+    youtube_api = YouTubeAPI(client_secrets_file, scopes)
 
     # Example URL
     video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
