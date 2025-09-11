@@ -67,7 +67,7 @@ class PlaywrightBrowser:
         """
         if not self.page:
             await self.launch()  # Ensure browser and page are launched if not already
-        await self.page.goto(url)
+        await self.page.goto(url, timeout=60000)
         await self.page.screenshot(path=f"./png/{filename}")
         logger.info(f"Screenshot saved to ./png/{filename}")
 
