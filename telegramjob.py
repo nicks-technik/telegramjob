@@ -53,6 +53,7 @@ telegram_limit: int = Config.TELEGRAM_LIMIT  # Number of messages to fetch
 # File paths
 client_secrets_file: str = Config.CLIENT_SECRETS_FILE
 storage_state_path: str = Config.STORAGE_STATE_PATH
+youtube_engaged = Config.YOUTUBE_ENGAGED
 
 
 def random_sleep(min_val: int, max_val: int) -> None:

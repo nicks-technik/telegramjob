@@ -37,6 +37,7 @@ class Config:
             os.getenv(key="ENV_HEADLESS", default="False").lower() == "true"
         )
         # Config.AUTH_FILE = os.getenv(key="ENV_AUTH_FILE", default="credentials").lower()
+        Config.YOUTUBE_ENGAGED = bool(os.getenv("ENV_YOUTUBE_ENGAGED", default="false"))
         Config.CLIENT_SECRETS_FILE = os.getenv(
             key="ENV_CLIENT_SECRETS_FILE", default="client_secret.json"
         )
@@ -44,7 +45,7 @@ class Config:
         Config.STORAGE_STATE_PATH = os.getenv(
             key="ENV_STORAGE_STATE_PATH", default="youtube_state.json"
         )
-
+        print(f"YOUTUBE_ENGAGED: {Config.YOUTUBE_ENGAGED}")
         Config.SPECIFIC_TEXTS = os.getenv(key="ENV_SPECIFIC_TEXTS", default="").split(
             ","
         )
@@ -65,3 +66,4 @@ class Config:
     CLIENT_SECRETS_FILE = ""
     STORAGE_STATE_PATH = ""
     SPECIFIC_TEXTS: list[str] = []
+    YOUTUBE_ENGAGED: bool = False
