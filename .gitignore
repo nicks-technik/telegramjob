@@ -185,3 +185,4 @@ uv.lock
 client_secret*.json
 credentials.json
 youtube_state.json
+token.json
