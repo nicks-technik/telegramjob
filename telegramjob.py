@@ -10,12 +10,15 @@ from time import sleep
 
 from telethon.sync import TelegramClient
 
+import telegramstuff  # type: ignore
+
 # Read the messages from the Telegram channel
 from config import Config
 from logger_config import logger
 from message_parser import extract_jobs_from_messages
 from playwrightstuff import PlaywrightBrowser
-import telegramstuff  # type: ignore
+from youtube_api import YouTubeAPI
+
 
 # --- Argument Parsing ---
 # Setup command-line argument parsing to allow for a configurable .env file path.
@@ -86,6 +89,26 @@ async def process_job(job, client, destination_chat_id):
             f"Screenshot already exists for task: {task_number}. Filename: {new_filename} Skipping."
         )
         return
+    if youtube_engaged:
+        if not client_secrets_file:
+            raise ValueError(
+                "YouTube client secrets file not found. Please set the path in your .env file."
+            )
+        scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+
+        youtube_api = YouTubeAPI(client_secrets_file, scopes)
+
+        # Example URL
+        video_url = url
+        video_id = youtube_api.get_video_id(video_url)
+
+        if video_id:
+            youtube_api.like_video(video_id)
+            channel_id = youtube_api.get_channel_id_from_video(video_id)
+            if channel_id:
+                youtube_api.subscribe_to_channel(channel_id)
+
+    logger.info(f"Attempting to take screenshot for URL: {url}")
 
     # Launch a browser, take a screenshot, and ensure the browser is closed.
     browser = PlaywrightBrowser()
