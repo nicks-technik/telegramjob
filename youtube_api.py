@@ -1,5 +1,6 @@
 import os.path
 import re
+import token
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -8,17 +9,20 @@ import googleapiclient.discovery
 import googleapiclient.errors
 
 from config import Config
+from logger_config import logger
 
 
 class YouTubeAPI:
-    def __init__(self, client_secrets_file, scopes):
+    def __init__(self, client_secrets_file, scopes, token_path="token.json"):
         self.client_secrets_file = client_secrets_file
         self.scopes = scopes
+        self.token_path = token_path
         self.youtube = self.get_authenticated_service()
 
     def get_authenticated_service(self):
         creds = None
-        token_path = "token.json"
+        # token_path = "token.json"
+        token_path = self.token_path
 
         if os.path.exists(token_path):
             creds = Credentials.from_authorized_user_file(token_path, self.scopes)
@@ -59,20 +63,20 @@ class YouTubeAPI:
     def get_channel_id_from_video(self, video_id):
         """Get the channel ID from a video ID."""
         if not video_id:
-            print("Invalid video ID")
+            logger.error("Invalid video ID")
             return None
         try:
             response = self.youtube.videos().list(part="snippet", id=video_id).execute()
             if response["items"]:
                 return response["items"][0]["snippet"]["channelId"]
         except googleapiclient.errors.HttpError as e:
-            print(f"An HTTP error {e.resp.status} occurred: {e.content}")
+            logger.error(f"An HTTP error {e.resp.status} occurred: {e.content}")
         return None
 
     def subscribe_to_channel(self, channel_id):
         """Subscribe to a YouTube channel."""
         if not channel_id:
-            print("Invalid channel ID")
+            logger.error("Invalid channel ID")
             return
         try:
             self.youtube.subscriptions().insert(
@@ -98,6 +102,7 @@ if __name__ == "__main__":
     Config.init_config()  # Call init_config to load values after .env is loaded
 
     client_secrets_file: str = Config.CLIENT_SECRETS_FILE
+    token_path: str = Config.TOKEN_PATH
 
     if not client_secrets_file:
         raise ValueError(
@@ -105,7 +110,7 @@ if __name__ == "__main__":
         )
     scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
-    youtube_api = YouTubeAPI(client_secrets_file, scopes)
+    youtube_api = YouTubeAPI(client_secrets_file, scopes, token_path)
 
     # Example URL
     video_url = "https://youtu.be/0kxiP0HUkYA?si=5EOdhAtC-4aHw5ZQ"
@@ -115,5 +120,5 @@ if __name__ == "__main__":
     if video_id:
         youtube_api.like_video(video_id)
         channel_id = youtube_api.get_channel_id_from_video(video_id)
-        # if channel_id:
-        #     youtube_api.subscribe_to_channel(channel_id)
+        if channel_id:
+            youtube_api.subscribe_to_channel(channel_id)

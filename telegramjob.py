@@ -55,6 +55,7 @@ telegram_limit: int = Config.TELEGRAM_LIMIT  # Number of messages to fetch
 
 # File paths
 client_secrets_file: str = Config.CLIENT_SECRETS_FILE
+token_path = Config.TOKEN_PATH
 storage_state_path: str = Config.STORAGE_STATE_PATH
 youtube_engaged = Config.YOUTUBE_ENGAGED
 
@@ -100,7 +101,9 @@ async def process_job(job, client, destination_chat_id):
 
         # Example URL
         video_url = url
+        logger.info(f"Video URL: {video_url}")
         video_id = youtube_api.get_video_id(video_url)
+        logger.info(f"Video ID: {video_id}")
 
         if video_id:
             youtube_api.like_video(video_id)
