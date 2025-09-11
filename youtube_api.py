@@ -1,10 +1,12 @@
+import os.path
 import re
 
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
-# import config
 from config import Config
 
 
@@ -15,27 +17,32 @@ class YouTubeAPI:
         self.youtube = self.get_authenticated_service()
 
     def get_authenticated_service(self):
-        # Disable OAuthlib's HTTPS verification when running locally.
-        # *DO NOT* leave this option enabled in production.
-        # os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+        creds = None
+        token_path = "token.json"
 
-        api_service_name = "youtube"
-        api_version = "v3"
+        if os.path.exists(token_path):
+            creds = Credentials.from_authorized_user_file(token_path, self.scopes)
 
-        # Get credentials and create an API client
-        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-            self.client_secrets_file, self.scopes
-        )
-        credentials = flow.run_local_server()
-        return googleapiclient.discovery.build(
-            api_service_name, api_version, credentials=credentials
-        )
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = (
+                    google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+                        self.client_secrets_file, self.scopes
+                    )
+                )
+                creds = flow.run_local_server(port=0)
+            with open(token_path, "w") as token:
+                token.write(creds.to_json())
+
+        return googleapiclient.discovery.build("youtube", "v3", credentials=creds)
 
     def get_video_id(self, url):
         """Parse video ID from a YouTube URL."""
-        video_id_match = re.search(r"(?<=v=)[^&#]+", url)
+        video_id_match = re.search(r"(?<=v=)[^&#?]+", url)
         if not video_id_match:
-            video_id_match = re.search(r"(?<=be/)[^&#]+", url)
+            video_id_match = re.search(r"(?<=be/)[^&#?]+", url)
         return video_id_match.group(0) if video_id_match else None
 
     def like_video(self, video_id):
@@ -101,11 +108,12 @@ if __name__ == "__main__":
     youtube_api = YouTubeAPI(client_secrets_file, scopes)
 
     # Example URL
-    video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    video_url = "https://youtu.be/0kxiP0HUkYA?si=5EOdhAtC-4aHw5ZQ"
+    # video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     video_id = youtube_api.get_video_id(video_url)
 
     if video_id:
         youtube_api.like_video(video_id)
         channel_id = youtube_api.get_channel_id_from_video(video_id)
-        if channel_id:
-            youtube_api.subscribe_to_channel(channel_id)
+        # if channel_id:
+        #     youtube_api.subscribe_to_channel(channel_id)
