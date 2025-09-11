@@ -3,6 +3,7 @@
 import os
 
 from dotenv import load_dotenv
+
 from logger_config import logger  # Import logger
 
 
@@ -41,7 +42,7 @@ class Config:
         Config.CLIENT_SECRETS_FILE = os.getenv(
             key="ENV_CLIENT_SECRETS_FILE", default="client_secret.json"
         )
-        print(f"Client Secrets File: {Config.CLIENT_SECRETS_FILE}")
+        print(f"CLIENT_SECRETS_FILE: {Config.CLIENT_SECRETS_FILE}")
         Config.STORAGE_STATE_PATH = os.getenv(
             key="ENV_STORAGE_STATE_PATH", default="youtube_state.json"
         )
