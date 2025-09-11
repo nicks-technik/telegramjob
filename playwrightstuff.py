@@ -26,25 +26,33 @@ class PlaywrightBrowser:
     def __init__(self):
         """Initializes the PlaywrightBrowser instance."""
         self.browser = None
+        self.context = None
         self.page = None
         self.playwright = None
 
     async def launch(self):
         """Launches the browser and creates a new page."""
         self.playwright = await async_playwright().start()
-        user_data_dir = "./tmp"
-        self.browser = await self.playwright.chromium.launch_persistent_context(
-            user_data_dir,
+        storage_path = "youtube_state.json"
+
+        storage_state = storage_path if os.path.exists(storage_path) else None
+        if storage_state:
+            logger.info(f"Loaded storage state from {storage_path}")
+
+        self.browser = await self.playwright.chromium.launch(
             headless=Config.HEADLESS,
             args=[
                 "--disable-blink-features=AutomationControlled",
                 f"--user-agent={USER_AGENT}",
             ],
         )
-        self.page = await self.browser.new_page()
+        self.context = await self.browser.new_context(storage_state=storage_state)
+        self.page = await self.context.new_page()
 
     async def close(self):
         """Closes the browser and the Playwright instance."""
+        if self.context:
+            await self.context.close()
         if self.browser:
             await self.browser.close()
         if self.playwright:
