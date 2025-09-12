@@ -13,14 +13,11 @@ cd telegramjob
 uv sync
 
 # Install browser for Playwright
-uv run playwright install chromium
+uv run playwright install
 
 # Setup environment
 cp .env.example .env
 # Edit .env with your credentials
-
-# Authenticate with YouTube
-uv run python youtube_auth.py
 
 # Run the main script
 uv run python telegramjob.py
@@ -84,22 +81,9 @@ uv run -m pytest
 # Update all dependencies to latest compatible versions
 uv sync --upgrade
 
-# Update specific package
-uv sync --upgrade-package package-name
 ```
 
 ## Project-Specific Setup
-
-### YouTube Authentication
-
-The project includes a streamlined YouTube authentication system:
-
-```bash
-# First time setup - will open browser for login
-uv run python youtube_auth.py
-```
-
-This creates `token.pickle` which stores your YouTube session. Subsequent runs will automatically use the saved session.
 
 ### Telegram Configuration
 
@@ -115,8 +99,6 @@ This creates `token.pickle` which stores your YouTube session. Subsequent runs w
 ### Browser Setup
 
 ```bash
-# Install only Chromium (sufficient for this project)
-uv run playwright install chromium
 
 # Or install all browsers if needed
 uv run playwright install
@@ -130,10 +112,10 @@ The project includes a shell script for automated execution:
 
 ```bash
 # Run once
-./telegramjob.sh
+uv run python3 ./telegramjob.sh
 
 # Install cron job (every 30 minutes, 9 AM - 9 PM)
-./telegramjob.sh --install-cron
+uv run python3 ./telegramjob.sh --install-cron
 ```
 
 ### Environment Isolation
@@ -147,9 +129,8 @@ Thanks to `uv`, the project runs in complete isolation:
 
 ### Common Issues
 
-1. **Missing browsers**: Run `uv run playwright install chromium`
-2. **Permission errors**: Ensure `telegramjob.sh` is executable: `chmod +x telegramjob.sh`
-3. **Outdated dependencies**: Run `uv sync --upgrade`
+1. **Permission errors**: Ensure `telegramjob.sh` is executable: `chmod +x telegramjob.sh`
+2. **Outdated dependencies**: Run `uv sync --upgrade`
 
 ### Debugging
 
@@ -178,8 +159,7 @@ When contributing to this project:
 If migrating from traditional pip/venv setup:
 
 1. Remove old virtual environment: `rm -rf .venv`
-2. Remove `requirements.txt` if it exists
-3. Run `uv sync` to create new environment
-4. Update any documentation/scripts to use `uv run`
+2. Run `uv sync` to create new environment
+3. Update any documentation/scripts to use `uv run`
 
 The `pyproject.toml` already contains all necessary dependencies - no additional setup needed!
